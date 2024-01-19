@@ -1,11 +1,28 @@
-function App() {
+import Header from "./Components/Header";
+import Body from "./Components/Body";
+import { Provider } from "react-redux";
+import store from "./utils/store";
 
+function App() {
+  /*
+  header
+  body
+    - sidebar
+    - video container 
+      - button list
+      - video card
+
+
+  */
 
   return (
-    <>
-    <b className='bg-slate-900 m-4 p-4 text-white'>helloo</b>
-    </>
-  )
+    <Provider store={store}>
+      <div>
+        <Header></Header>
+        <Body></Body>
+      </div>
+    </Provider>
+  );
 }
 
-export default App
+export default App;
