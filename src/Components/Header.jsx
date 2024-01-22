@@ -1,7 +1,8 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toggleMenu } from "../utils/appSlice";
 import { useEffect, useState } from "react";
 import { YOUTUBE_SEARCH_API } from "../utils/constants";
+import { cacheResults } from "../utils/searchSlice";
 
 const Header = () => {
   const [searchQuery, setSearchQuery] = useState();
@@ -9,10 +10,15 @@ const Header = () => {
   const [showsuggestions, setShowSuggestions] = useState(false);
 
   const dispatch = useDispatch();
+  const searchCache = useSelector((store) => store.search);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      searchSuggestions();
+      if (searchCache[searchQuery]) {
+        setSuggestions(json[1]);
+      } else {
+        searchSuggestions();
+      }
     }, 200);
 
     return () => {
@@ -25,6 +31,11 @@ const Header = () => {
     const json = await data.json();
     // console.log(json[1]);
     setSuggestions(json[1]);
+    dispatch(
+      cacheResults({
+        [searchQuery]: json[1],
+      })
+    );
   };
   return (
     <div className="shadow-lg rounded-lg flex justify-between mt-5">
@@ -56,11 +67,13 @@ const Header = () => {
         </button>
         <div className="absolute">
           <ul className="shadow-lg">
-            
-
-            {suggestions[0] !== 'undefined' &&showsuggestions &&
-              suggestions.map((suggestion) => (
-                <div className="bg-gray-50 w-[385px] p-2 hover:bg-gray-300 ">
+            {suggestions[0] !== "undefined" &&
+              showsuggestions &&
+              suggestions.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-50 w-[385px] p-2 hover:bg-gray-300 "
+                >
                   <li>🔍 {suggestion}</li>
                 </div>
               ))}
