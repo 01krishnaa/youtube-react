@@ -1,8 +1,31 @@
 import { useDispatch } from "react-redux";
 import { toggleMenu } from "../utils/appSlice";
+import { useEffect, useState } from "react";
+import { YOUTUBE_SEARCH_API } from "../utils/constants";
 
 const Header = () => {
+  const [searchQuery, setSearchQuery] = useState();
+  const [suggestions, setSuggestions] = useState([]);
+  const [showsuggestions, setShowSuggestions] = useState(false);
+
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      searchSuggestions();
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
+
+  const searchSuggestions = async () => {
+    const data = await fetch(YOUTUBE_SEARCH_API + searchQuery);
+    const json = await data.json();
+    // console.log(json[1]);
+    setSuggestions(json[1]);
+  };
   return (
     <div className="shadow-lg rounded-lg flex justify-between mt-5">
       <div className="flex">
@@ -20,14 +43,31 @@ const Header = () => {
       </div>
       <div>
         <input
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="rounded-l-full border border-gray-200 p-2 mb-2 w-96"
           type="text"
           placeholder="Search"
+          onFocus={() => setShowSuggestions(true)}
+          onBlur={() => setShowSuggestions(false)}
         />
         <button className="rounded-r-full border border-gray-200 p-2">
           🔍
         </button>
+        <div className="absolute">
+          <ul className="shadow-lg">
+            
+
+            {suggestions[0] !== 'undefined' &&showsuggestions &&
+              suggestions.map((suggestion) => (
+                <div className="bg-gray-50 w-[385px] p-2 hover:bg-gray-300 ">
+                  <li>🔍 {suggestion}</li>
+                </div>
+              ))}
+          </ul>
+        </div>
       </div>
+
       <div>
         <img
           className="w-10"
